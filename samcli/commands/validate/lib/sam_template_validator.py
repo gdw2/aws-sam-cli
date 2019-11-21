@@ -81,21 +81,21 @@ class SamTemplateValidator:
                 SamTemplateValidator._update_to_s3_uri("CodeUri", properties)
 
         for _, resource in all_resources.items():
+            if isinstance(resource, dict):
+                resource_type = resource.get("Type")
+                resource_dict = resource.get("Properties", {})
 
-            resource_type = resource.get("Type")
-            resource_dict = resource.get("Properties", {})
+                if resource_type == "AWS::Serverless::Function":
 
-            if resource_type == "AWS::Serverless::Function":
+                    SamTemplateValidator._update_to_s3_uri("CodeUri", resource_dict)
 
-                SamTemplateValidator._update_to_s3_uri("CodeUri", resource_dict)
+                if resource_type == "AWS::Serverless::LayerVersion":
 
-            if resource_type == "AWS::Serverless::LayerVersion":
+                    SamTemplateValidator._update_to_s3_uri("ContentUri", resource_dict)
 
-                SamTemplateValidator._update_to_s3_uri("ContentUri", resource_dict)
-
-            if resource_type == "AWS::Serverless::Api":
-                if "DefinitionUri" in resource_dict:
-                    SamTemplateValidator._update_to_s3_uri("DefinitionUri", resource_dict)
+                if resource_type == "AWS::Serverless::Api":
+                    if "DefinitionUri" in resource_dict:
+                        SamTemplateValidator._update_to_s3_uri("DefinitionUri", resource_dict)
 
     @staticmethod
     def is_s3_uri(uri):
